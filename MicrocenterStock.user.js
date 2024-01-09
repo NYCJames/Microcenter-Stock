@@ -13,6 +13,33 @@
   "use strict";
 
   // Your code here...
+  let myStores = new Map(retrieveSavedStores()) || [];
+  //   console.log(myStores.length, inventory.length);
+
+  function init() {
+    // console.log(retrieveSavedStores());
+    if (myStores.length === inventory.length) {
+      return;
+    }
+
+    const mapStores = new Map();
+    inventory.forEach(function (value) {
+      mapStores.set(value.storeNumber, 0);
+      //   console.log(mapStores);
+    });
+    saveStores([...mapStores]);
+  }
+  init();
+
+  function saveStores(string) {
+    localStorage.setItem(`savedStores`, JSON.stringify(string));
+    // console.log(JSON.parse(localStorage.getItem(`savedStores`)));
+  }
+
+  function retrieveSavedStores() {
+    // console.log(new Map(JSON.parse(localStorage.getItem(`savedStores`))));
+    return JSON.parse(localStorage.getItem(`savedStores`));
+  }
 
   function displayStores() {
     // console.log(inventory);
@@ -35,8 +62,12 @@
               //   }
 
               // return html
-              return `<div id="store--num--${value.storeNumber}" style="margin: 0px; padding: 0px; line-height: 24px" class="dropdown--stores">
-            ${value.storeName} (${value.storeNumber})
+              return `<div id="store--num--${
+                value.storeNumber
+              }" style="margin: 0px; padding: 0px; line-height: 24px" class="dropdown--stores">${value.qoh ? `🟢` : `🔴`}
+            ${
+              value.storeName
+            } (${value.storeNumber}) ${myStores.get(value.storeNumber) === 1 ? `✅` : ``}
             </div>`;
             })
             .join(`\n`)}
@@ -81,7 +112,7 @@
     const dropdownMenu = document.querySelector(`.dropdown--menu`);
     dropdownMenu.style.position = `absolute`;
     dropdownMenu.style.backgroundColor = `#f1f1f1`;
-    dropdownMenu.style.minWidth = `190px`;
+    dropdownMenu.style.minWidth = `250px`;
     dropdownMenu.style.boxShadow = `0px 8px 16px 0px rgba(0,0,0,0.2)`;
     dropdownMenu.style.zIndex = `1`;
 
