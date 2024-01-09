@@ -15,17 +15,17 @@
   // Your code here...
 
   function displayStores() {
-    console.log(inventory);
-    const currentStore =
-      document.querySelector(`.storeState`).textContent +
-      ` -` +
-      document.querySelector(`.storeName`).textContent;
+    // console.log(inventory);
+    // const currentStore =
+    //   document.querySelector(`.storeState`).textContent +
+    //   ` -` +
+    //   document.querySelector(`.storeName`).textContent;
     // console.log(currentStore);
 
     // <div class="dropdown current--store">${currentStore}</div>
     const html = `
         <button class="dropdown select--stores--button">Select Stores ⬇️</button>
-        <ul class="dropdown--menu hidden">
+        <div class="dropdown--menu hidden">
           ${inventory
             .map(function (value) {
               // console.log(value.storeName, currentStore === value.storeName);
@@ -35,37 +35,60 @@
               //   }
 
               // return html
-              return `<li class="dropdown--stores">
-            <p>${value.storeName} (${value.storeNumber})</p>
-            </li>`;
+              return `<div id="store--num--${value.storeNumber}" style="margin: 0px; padding: 0px; line-height: 24px" class="dropdown--stores">
+            ${value.storeName} (${value.storeNumber})
+            </div>`;
             })
             .join(`\n`)}
-        </ul>
+        </div>
       `;
 
-    const topBar = document.querySelector(`.prodInfo > div:nth-child(1) > div`);
+    //             <p style="display: block; padding: 0px 6px; margin: 0px;">${value.storeName} (${value.storeNumber})</p>
 
-    const newElement = document.createElement("div");
-    newElement.classList.add(`store--picker`, `col-auto`);
+    // const topBar = document.querySelector(`.prodInfo > div:nth-child(1) > div`);
+    const topBar = document.querySelector(`#tabs`);
+
+    const newElement = document.createElement("li");
+    newElement.classList.add(`store--picker`, `mainDropdownNav`);
     newElement.innerHTML = html;
-    newElement.style.padding = `8px`;
-    newElement.style.backgroundColor = `#3498DB`;
-    newElement.style.border = `none`;
+    newElement.style.position = `relative`;
+    newElement.style.display = `inline-block`;
+    newElement.style.padding = `0`;
+    newElement.style.width = `132px`;
+    newElement.style.fontSize = `14px`;
 
     // topBar.insertAdjacentHTML(`beforebegin`, html);
     // console.log(newElement);
     // topBar.innerHTML += testHtml;
     topBar.append(newElement);
 
-    document
-      .querySelector(`.select--stores--button`)
-      .addEventListener(`click`, handleDropDown);
+    const dropdownButton = document.querySelector(`.select--stores--button`);
+
+    dropdownButton.style.padding = `4px`;
+    dropdownButton.style.backgroundColor = `#3498DB`;
+    dropdownButton.style.border = `none`;
+    dropdownButton.style.color = `white`;
+
+    dropdownButton.addEventListener(`click`, handleDropDown);
 
     function handleDropDown() {
-      console.log(event.target);
+      //   console.log(event.target);
       //   event.stopPropagation();
 
       document.querySelector(`.dropdown--menu`).classList.toggle(`hidden`);
+    }
+
+    const dropdownMenu = document.querySelector(`.dropdown--menu`);
+    dropdownMenu.style.position = `absolute`;
+    dropdownMenu.style.backgroundColor = `#f1f1f1`;
+    dropdownMenu.style.minWidth = `190px`;
+    dropdownMenu.style.boxShadow = `0px 8px 16px 0px rgba(0,0,0,0.2)`;
+    dropdownMenu.style.zIndex = `1`;
+
+    dropdownMenu.addEventListener(`click`, handleToggleStores);
+
+    function handleToggleStores() {
+      console.log(event.target.id);
     }
   }
 
