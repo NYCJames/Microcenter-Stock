@@ -14,30 +14,30 @@
 
   // Your code here...
   let myStores = new Map(retrieveSavedStores()) || [];
-  //   console.log(myStores.length, inventory.length);
+  console.log(myStores.size, inventory.length);
 
   function init() {
     // console.log(retrieveSavedStores());
-    if (myStores.length === inventory.length) {
+    if (myStores.size === inventory.length) {
       return;
+    } else {
+      const mapStores = new Map();
+      inventory.forEach(function (value) {
+        mapStores.set(value.storeNumber, 0);
+        console.log([...mapStores]);
+      });
+      saveStores([...mapStores]);
     }
-
-    const mapStores = new Map();
-    inventory.forEach(function (value) {
-      mapStores.set(value.storeNumber, 0);
-      //   console.log(mapStores);
-    });
-    saveStores([...mapStores]);
   }
   init();
 
   function saveStores(string) {
-    localStorage.setItem(`savedStores`, JSON.stringify(string));
     // console.log(JSON.parse(localStorage.getItem(`savedStores`)));
+    localStorage.setItem(`savedStores`, JSON.stringify(string));
   }
 
   function retrieveSavedStores() {
-    // console.log(new Map(JSON.parse(localStorage.getItem(`savedStores`))));
+    console.log(new Map(JSON.parse(localStorage.getItem(`savedStores`))));
     return JSON.parse(localStorage.getItem(`savedStores`));
   }
 
@@ -64,11 +64,11 @@
               // return html
               return `<div id="store--num--${
                 value.storeNumber
-              }" style="margin: 0px; padding: 0px; line-height: 24px" class="dropdown--stores">${value.qoh ? `🟢` : `🔴`}
-            ${
-              value.storeName
-            } (${value.storeNumber}) ${myStores.get(value.storeNumber) === 1 ? `✅` : ``}
-            </div>`;
+              }" style="margin: 0px; padding: 0px; line-height: 24px" class="dropdown--stores">
+              ${
+                value.qoh ? `🟢` : `🔴`
+              } ${value.storeName} (${value.storeNumber}) ${myStores.get(value.storeNumber) === 1 ? `✅` : ``}
+              </div>`;
             })
             .join(`\n`)}
         </div>
@@ -119,7 +119,19 @@
     dropdownMenu.addEventListener(`click`, handleToggleStores);
 
     function handleToggleStores() {
-      console.log(event.target.id);
+      //   console.log(event);
+      //   console.log(event.target.id.slice(-3));
+      //   console.log(myStores.get(event.target.id.slice(-3)));
+      if (myStores.get(event.target.id.slice(-3)) === 0) {
+        myStores.set(event.target.id.slice(-3), 1);
+        event.target.innerText = event.target.innerText + `✅`;
+      } else {
+        myStores.set(event.target.id.slice(-3), 0);
+        // console.log(event.target.textContent.slice(0, -2));
+        event.target.innerText = event.target.innerText.slice(0, -1);
+      }
+      //   console.log(myStores.get(event.target.id.slice(-3)));
+      saveStores([...myStores]);
     }
   }
 
