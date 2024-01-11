@@ -13,8 +13,9 @@
   "use strict";
 
   // Your code here...
+  // const inventory = document.querySelector("#content > script:nth-child(7)").textContent
   let myStores = new Map(retrieveSavedStores()) || [];
-  console.log(myStores.size, inventory.length);
+  // console.log(myStores.size, inventory.length);
 
   function init() {
     // console.log(retrieveSavedStores());
@@ -24,7 +25,7 @@
       const mapStores = new Map();
       inventory.forEach(function (value) {
         mapStores.set(value.storeNumber, 0);
-        console.log([...mapStores]);
+        // console.log([...mapStores]);
       });
       saveStores([...mapStores]);
     }
@@ -37,7 +38,7 @@
   }
 
   function retrieveSavedStores() {
-    console.log(new Map(JSON.parse(localStorage.getItem(`savedStores`))));
+    // console.log(new Map(JSON.parse(localStorage.getItem(`savedStores`))));
     return JSON.parse(localStorage.getItem(`savedStores`));
   }
 
@@ -135,14 +136,42 @@
     }
   }
 
-  async function getStockData(storeID) {
+  async function getOpenBoxData(storeID) {
     try {
       const response = await fetch(`?storeID=${storeID}`);
       //   console.log(response.text());
       const html = await response.text();
       const parser = new DOMParser();
       const newDocument = parser.parseFromString(html, "text/html");
-      console.log(newDocument);
+      // console.log(newDocument);
+
+      let openBoxData = newDocument
+        .querySelector("#content > script:nth-child(6)")
+        .textContent.match(/OpenBoxLayer\=(.*?)\;/s);
+
+      // console.log(openBoxData);
+      // console.log(
+      //   productInfo.textContent
+      //     .replaceAll("\n", "")
+      //     .match(/OpenBoxLayer\=(.*?)\;/)[1]
+      //     ?.replace(/[']/g, `"`)
+      // );
+      // console.log(productInfo.textContent.replaceAll("\n", "").split(`;`));
+      // console.log(
+      //   productInfo.textContent
+      //     ?.match(/OpenBoxLayer\=(.*?)\;/s)[1]
+      //     .replaceAll("\n", "")
+      //     .replace(/[']/g, `"`)
+      // );
+
+      if (!openBoxData) {
+        return;
+      }
+
+      openBoxData = openBoxData[1].replaceAll("\n", "").replace(/[']/g, `"`);
+      openBoxData = JSON.parse(openBoxData);
+      console.log(openBoxData);
+
       //   console.log(newDocument.querySelector(`.openboxOptions`));
       //   console.log(newDocument.querySelector(`#openboxmodal`));
 
@@ -166,6 +195,32 @@
   }
 
   displayStores();
-  //   getStockData(115);
-  //   getStockData(145);
+  // getOpenBoxData(115);
+  getOpenBoxData(145);
 })();
+
+// FASTER
+// console.time("Execution Time");
+// function functionToBeMeasured() {
+//   `"\nproductsLayer=[{\n'name': 'Z790-V Prime WiFi Intel LGA 1700 ATX Motherboard',\n'id': '671030',\n'price': '219.99',\n'brand': 'ASUS',\n'category': 'Motherboards'\n}];\naddOnLayer=[{\n'name': 'Trident Z5 Neo RGB Series 32GB (2 x 16GB) DDR5-6000 PC5-48000 CL30 Dual Channel Desktop Memory Kit F5-6000J3038F16GX2-TZ5NR - Black',\n'id': '653734',\n'price': '119.99',\n'brand': 'G.Skill',\n'category': 'Desktop Memory/RAM',\n'list': 'Add Ons',\n'position': 1\n},{\n'name': 'Flare X5 Series 32GB (2 x 16GB) DDR5-6000 PC5-48000 CL36 Dual Channel Desktop Memory Kit F5-6000J3636F16GX2-FX5 - Black',\n'id': '653727',\n'price': '104.99',\n'brand': 'G.Skill',\n'category': 'Desktop Memory/RAM',\n'list': 'Add Ons',\n'position': 2\n},{\n'name': 'Ripjaws S5 32GB (2 x 16GB) DDR5-6000 PC5-48000 CL36 Dual Channel Desktop Memory Kit F5-6000J3636F16GX2-RS5K - Black',\n'id': '664095',\n'price': '104.99',\n'brand': 'G.Skill',\n'category': 'Desktop Memory/RAM',\n'list': 'Add Ons',\n'position': 3\n},{\n'name': 'Motherboard Installation Service',\n'id': '609476',\n'price': '79.99',\n'brand': '',\n'category': 'Build, Install, & Repair Services',\n'list': 'Add Ons',\n'position': 4\n}];\nfrequentlyBoughtLayer=[{\n'name': 'G.Skill Trident Z5 Neo RGB Series 32GB (2 x 16GB) DDR5-6000 PC5-48000 CL30 Dual Channel Desktop Memory Kit F5-6000J3038F16GX2-TZ5NR - Black',\n'id': '653734',\n'price': '119.99',\n'brand': 'G.Skill',\n'list': 'Frequently Bought Together',\n'position': 1\n}];\nOpenBoxLayer=[{\n'name': 'Z790-V Prime WiFi Intel LGA 1700 ATX Motherboard',\n'id': '671030',\n'price': '153.9600',\n'brand': 'ASUS',\n'category': 'Motherboards',\n'list': 'Single Product Clearance',\n'position': 1\n},{\n'name': 'Z790-V Prime WiFi Intel LGA 1700 ATX Motherboard',\n'id': '671030',\n'price': '175.9600',\n'brand': 'ASUS',\n'category': 'Motherboards',\n'list': 'Single Product Clearance',\n'position': 2\n},{\n'name': 'Z790-V Prime WiFi Intel LGA 1700 ATX Motherboard',\n'id': '671030',\n'price': '175.9600',\n'brand': 'ASUS',\n'category': 'Motherboards',\n'list': 'Single Product Clearance',\n'position': 3\n},{\n'name': 'Z790-V Prime WiFi Intel LGA 1700 ATX Motherboard',\n'id': '671030',\n'price': '175.9600',\n'brand': 'ASUS',\n'category': 'Motherboards',\n'list': 'Single Product Clearance',\n'position': 4\n}];\nsendfrequentlyboughtImpression();\nsendproductImpression();\n"
+// `
+//     .match(/OpenBoxLayer\=(.*?)\;/s)[1]
+//     ?.replaceAll("\n", "")
+//     .replace(/[']/g, `"`);
+// }
+// await functionToBeMeasured();
+
+// console.timeEnd("Execution Time");
+
+// SLOWER
+// console.time("Execution Time");
+// function functionToBeMeasured() {
+//   `"\nproductsLayer=[{\n'name': 'Z790-V Prime WiFi Intel LGA 1700 ATX Motherboard',\n'id': '671030',\n'price': '219.99',\n'brand': 'ASUS',\n'category': 'Motherboards'\n}];\naddOnLayer=[{\n'name': 'Trident Z5 Neo RGB Series 32GB (2 x 16GB) DDR5-6000 PC5-48000 CL30 Dual Channel Desktop Memory Kit F5-6000J3038F16GX2-TZ5NR - Black',\n'id': '653734',\n'price': '119.99',\n'brand': 'G.Skill',\n'category': 'Desktop Memory/RAM',\n'list': 'Add Ons',\n'position': 1\n},{\n'name': 'Flare X5 Series 32GB (2 x 16GB) DDR5-6000 PC5-48000 CL36 Dual Channel Desktop Memory Kit F5-6000J3636F16GX2-FX5 - Black',\n'id': '653727',\n'price': '104.99',\n'brand': 'G.Skill',\n'category': 'Desktop Memory/RAM',\n'list': 'Add Ons',\n'position': 2\n},{\n'name': 'Ripjaws S5 32GB (2 x 16GB) DDR5-6000 PC5-48000 CL36 Dual Channel Desktop Memory Kit F5-6000J3636F16GX2-RS5K - Black',\n'id': '664095',\n'price': '104.99',\n'brand': 'G.Skill',\n'category': 'Desktop Memory/RAM',\n'list': 'Add Ons',\n'position': 3\n},{\n'name': 'Motherboard Installation Service',\n'id': '609476',\n'price': '79.99',\n'brand': '',\n'category': 'Build, Install, & Repair Services',\n'list': 'Add Ons',\n'position': 4\n}];\nfrequentlyBoughtLayer=[{\n'name': 'G.Skill Trident Z5 Neo RGB Series 32GB (2 x 16GB) DDR5-6000 PC5-48000 CL30 Dual Channel Desktop Memory Kit F5-6000J3038F16GX2-TZ5NR - Black',\n'id': '653734',\n'price': '119.99',\n'brand': 'G.Skill',\n'list': 'Frequently Bought Together',\n'position': 1\n}];\nOpenBoxLayer=[{\n'name': 'Z790-V Prime WiFi Intel LGA 1700 ATX Motherboard',\n'id': '671030',\n'price': '153.9600',\n'brand': 'ASUS',\n'category': 'Motherboards',\n'list': 'Single Product Clearance',\n'position': 1\n},{\n'name': 'Z790-V Prime WiFi Intel LGA 1700 ATX Motherboard',\n'id': '671030',\n'price': '175.9600',\n'brand': 'ASUS',\n'category': 'Motherboards',\n'list': 'Single Product Clearance',\n'position': 2\n},{\n'name': 'Z790-V Prime WiFi Intel LGA 1700 ATX Motherboard',\n'id': '671030',\n'price': '175.9600',\n'brand': 'ASUS',\n'category': 'Motherboards',\n'list': 'Single Product Clearance',\n'position': 3\n},{\n'name': 'Z790-V Prime WiFi Intel LGA 1700 ATX Motherboard',\n'id': '671030',\n'price': '175.9600',\n'brand': 'ASUS',\n'category': 'Motherboards',\n'list': 'Single Product Clearance',\n'position': 4\n}];\nsendfrequentlyboughtImpression();\nsendproductImpression();\n"
+// `
+//     .replaceAll("\n", "")
+//     .match(/OpenBoxLayer\=(.*?)\;/)[1]
+//     ?.replace(/[']/g, `"`);
+// }
+// await functionToBeMeasured();
+
+// console.timeEnd("Execution Time");
