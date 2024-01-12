@@ -14,11 +14,14 @@
 
   // Your code here...
   // const inventory = document.querySelector("#content > script:nth-child(7)").textContent
-  let myStores = new Map(retrieveSavedStores()) || [];
+  let myStores = new Map(retrieveSavedStores(`savedStores`)) || [];
   // console.log(myStores.size, inventory.length);
 
+  // get and set or delete after every selection
+  const myStores2 = new Map(retrieveSavedStores(`myStores2`)) || [];
+
   function init() {
-    // console.log(retrieveSavedStores());
+    // console.log(retrieveSavedStores(`savedStores`));
     if (myStores.size === inventory.length) {
       return;
     } else {
@@ -27,19 +30,19 @@
         mapStores.set(value.storeNumber, 0);
         // console.log([...mapStores]);
       });
-      saveStores([...mapStores]);
+      saveStores(`savedStores`, [...mapStores]);
     }
   }
   init();
 
-  function saveStores(string) {
+  function saveStores(key, string) {
     // console.log(JSON.parse(localStorage.getItem(`savedStores`)));
-    localStorage.setItem(`savedStores`, JSON.stringify(string));
+    localStorage.setItem(key, JSON.stringify(string));
   }
 
-  function retrieveSavedStores() {
-    // console.log(new Map(JSON.parse(localStorage.getItem(`savedStores`))));
-    return JSON.parse(localStorage.getItem(`savedStores`));
+  function retrieveSavedStores(key) {
+    // console.log(new Map(JSON.parse(localStorage.getItem(key))));
+    return JSON.parse(localStorage.getItem(key));
   }
 
   function displayStores() {
@@ -63,19 +66,20 @@
               //   }
 
               // return html
-              return `<div id="store--num--${
+              // instead of id, set property storenum=storenumber and storelocation=storestate + store city
+              return `<div data-store-number=${
                 value.storeNumber
-              }" style="margin: 0px; padding: 0px; line-height: 24px" class="dropdown--stores">
+              } data-store-location="${value.storeName}" id="store--num--${value.storeNumber}" style="margin: 0px; padding: 0px; line-height: 24px" class="dropdown--stores">
               ${
                 value.qoh ? `🟢` : `🔴`
-              } ${value.storeName} (${value.storeNumber}) ${myStores.get(value.storeNumber) === 1 ? `✅` : ``}
+              } ${value.storeName} (${value.storeNumber}) ${myStores2.has(value.storeNumber) ? `✅` : ``}
               </div>`;
             })
             .join(`\n`)}
         </div>
       `;
 
-    //             <p style="display: block; padding: 0px 6px; margin: 0px;">${value.storeName} (${value.storeNumber})</p>
+    //myStores.get(value.storeNumber) === 1
 
     // const topBar = document.querySelector(`.prodInfo > div:nth-child(1) > div`);
     const topBar = document.querySelector(`#tabs`);
@@ -119,24 +123,40 @@
 
     dropdownMenu.addEventListener(`click`, handleToggleStores);
 
-    function handleToggleStores() {
+    function handleToggleStores(event) {
       //   console.log(event);
       //   console.log(event.target.id.slice(-3));
       //   console.log(myStores.get(event.target.id.slice(-3)));
-      if (myStores.get(event.target.id.slice(-3)) === 0) {
-        myStores.set(event.target.id.slice(-3), 1);
-        event.target.innerText = event.target.innerText + `✅`;
-      } else {
-        myStores.set(event.target.id.slice(-3), 0);
-        // console.log(event.target.textContent.slice(0, -2));
+
+      // console.log(event, event.target.dataset);
+      const storeID = event.target.dataset.storeNumber;
+      const storeLocation = event.target.dataset.storeLocation;
+      // console.log(storeID + storeLocation);
+
+      // if (myStores.get(event.target.id.slice(-3)) === 0) {
+      //   myStores.set(event.target.id.slice(-3), 1);
+      //   event.target.innerText = event.target.innerText + `✅`;
+      // } else {
+      //   myStores.set(event.target.id.slice(-3), 0);
+      //   // console.log(event.target.textContent.slice(0, -2));
+      //   event.target.innerText = event.target.innerText.slice(0, -1);
+      // }
+      // //   console.log(myStores.get(event.target.id.slice(-3)));
+      // saveStores(`savedStores`, [...myStores]);
+
+      if (myStores2.has(storeID)) {
+        myStores2.delete(storeID);
         event.target.innerText = event.target.innerText.slice(0, -1);
+      } else {
+        myStores2.set(storeID, storeLocation);
+        event.target.innerText = event.target.innerText + `✅`;
       }
-      //   console.log(myStores.get(event.target.id.slice(-3)));
-      saveStores([...myStores]);
+      saveStores(`myStores2`, [...myStores2]);
+      console.log(myStores2);
     }
   }
 
-  async function getOpenBoxData(storeID) {
+  async function getNewAndOpenBoxData(storeID) {
     try {
       const response = await fetch(`?storeID=${storeID}`);
       //   console.log(response.text());
@@ -144,6 +164,11 @@
       const parser = new DOMParser();
       const newDocument = parser.parseFromString(html, "text/html");
       // console.log(newDocument);
+
+      // check inventory
+      // if qoh = 1 then fetch new data
+      const newData = newDocument.querySelector(`.inventoryCnt`).textContent;
+      console.log(newData);
 
       let openBoxData = newDocument
         .querySelector("#content > script:nth-child(6)")
@@ -195,8 +220,8 @@
   }
 
   displayStores();
-  // getOpenBoxData(115);
-  getOpenBoxData(145);
+  // getNewAndOpenBoxData(115);
+  getNewAndOpenBoxData(145);
 })();
 
 // FASTER
