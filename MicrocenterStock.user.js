@@ -239,10 +239,11 @@
       // check inventory
       // if qoh = 1 then fetch new data
       if (newDocument.querySelector(`.inventoryCnt`)) {
-        stock[`new`] = newDocument
-          .querySelector(`.inventoryCnt`)
-          ?.childNodes[0].textContent.trim();
       }
+      stock[`new`] =
+        newDocument
+          .querySelector(`.inventoryCnt`)
+          ?.childNodes[0].textContent.trim() || `0`;
       // const newData =
       //   newDocument.querySelector(`.inventoryCnt`)?.textContent || `SOLD OUT`;
       // console.log(newData);
@@ -266,18 +267,18 @@
       //     .replace(/[']/g, `"`)
       // );
 
-      if (!openBoxData) {
+      if (openBoxData) {
         // console.log(stock);
         // myStoresStock.set(storeID, stock);
         // console.log(myStoresStock);
         // return stock;
-      }
 
-      // console.log(openBoxData);
-      openBoxData = openBoxData[1].replaceAll("\n", "").replace(/[']/g, `"`);
-      openBoxData = JSON.parse(openBoxData);
-      stock[`openBox`] = openBoxData;
-      // console.log(openBoxData);
+        // console.log(openBoxData);
+        openBoxData = openBoxData[1].replaceAll("\n", "").replace(/[']/g, `"`);
+        openBoxData = JSON.parse(openBoxData);
+        stock[`openBox`] = openBoxData;
+        // console.log(openBoxData);
+      }
 
       //   console.log(newDocument.querySelector(`.openboxOptions`));
       //   console.log(newDocument.querySelector(`#openboxmodal`));
@@ -405,6 +406,44 @@
       //   .insertAdjacentHTML(`afterend`, html2);
 
       // instead of fetching and rendering all on load, add button and fetch data and render after click
+
+      const html3 = `<div class="other--store--stock">
+      <b>${storeLocation} (${storeID})</b>
+<table class="stock--${storeID}"  border="1">
+<tbody>
+<tr>
+<td style="width: 400px;">$${stock.productPrice}</td>
+<td style="width: 800px;">${
+        stock.new !== `0`
+          ? `<i class="fa-solid fa-circle-check text-slate-blue"></i>`
+          : `<i class="fa-solid fa-circle-xmark text-burnt"></i>`
+      } ${stock.new || 0} New In Stock</td>
+<td style="width: 500px;">${
+        stock.openBox
+          ? `<i class="fa-solid fa-circle-check text-slate-blue"></i>`
+          : `<i class="fa-solid fa-circle-xmark text-burnt"></i>`
+      } ${stock.openBox?.length || 0} Open Box</td>
+<td style="width: 800px;">${
+        stock.openBox
+          ? `from $${Number.parseFloat(
+              stock.openBox[0]?.price
+            )} to $${Number.parseFloat(
+              stock.openBox[stock.openBox?.length - 1]?.price
+            )}`
+          : `—`
+      }</td>
+</tr>
+</tbody>
+</table>
+      </div>`;
+
+      document
+        .querySelector(`.banner-margin`)
+        .insertAdjacentHTML(`afterend`, html3);
+
+      // document
+      //   .querySelector(`.banner-margin`)
+      //   .insertAdjacentHTML(`afterend`, html2);
     } catch (error) {
       console.log(error);
     }
@@ -415,7 +454,8 @@
   // console.log(myStoresStock);
   getNewAndOpenBoxData(`055`);
   getNewAndOpenBoxData(`145`);
-  getNewAndOpenBoxData(`141`);
+  getNewAndOpenBoxData(`125`);
+  getNewAndOpenBoxData(`075`);
 })();
 
 // FASTER
