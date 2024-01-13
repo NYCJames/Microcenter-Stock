@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Microcenter Stock Checker
+// @name         Microcenter Stock Checker (Development Version)
 // @namespace    https://github.com/NYCJames
 // @version      2024.01.09
 // @description  Check new and open box stock at selected stores
