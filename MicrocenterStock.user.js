@@ -22,16 +22,19 @@
 
   function init() {
     // console.log(retrieveSavedStores(`savedStores`));
-    if (myStores.size === inventory.length) {
-      return;
-    } else {
-      const mapStores = new Map();
-      inventory.forEach(function (value) {
-        mapStores.set(value.storeNumber, 0);
-        // console.log([...mapStores]);
-      });
-      saveStores(`savedStores`, [...mapStores]);
-    }
+    // if (myStores.size === inventory.length) {
+    //   return;
+    // } else {
+    //   const mapStores = new Map();
+    //   inventory.forEach(function (value) {
+    //     mapStores.set(value.storeNumber, 0);
+    //     // console.log([...mapStores]);
+    //   });
+    //   saveStores(`savedStores`, [...mapStores]);
+    // }
+    renderDropdownStores();
+    renderOtherStockButton();
+    // renderAllStoreData();
   }
   init();
 
@@ -45,7 +48,7 @@
     return JSON.parse(localStorage.getItem(key));
   }
 
-  function displayStores() {
+  function renderDropdownStores() {
     // console.log(inventory);
     // const currentStore =
     //   document.querySelector(`.storeState`).textContent +
@@ -67,9 +70,9 @@
 
               // return html
               // instead of id, set property storenum=storenumber and storelocation=storestate + store city
-              return `<div data-store-number=${
-                value.storeNumber
-              } data-store-location="${value.storeName}" id="store--num--${value.storeNumber}" style="margin: 0px; padding: 0px; line-height: 24px" class="dropdown--stores">
+              return `<div data-in-stock="${
+                value.qoh ? true : false
+              }" data-store-number="${value.storeNumber}" data-store-location="${value.storeName}" style="margin: 0px; padding: 0px; line-height: 24px" class="dropdown--stores">
               ${
                 value.qoh ? `🟢` : `🔴`
               } ${value.storeName} (${value.storeNumber}) ${myStores2.has(value.storeNumber) ? `✅` : ``}
@@ -79,24 +82,32 @@
         </div>
       `;
 
-    //myStores.get(value.storeNumber) === 1
+    // myStores.get(value.storeNumber) === 1
+    // id="store--num--${value.storeNumber}"
 
     // const topBar = document.querySelector(`.prodInfo > div:nth-child(1) > div`);
     const topBar = document.querySelector(`#tabs`);
 
-    const newElement = document.createElement("li");
-    newElement.classList.add(`store--picker`, `mainDropdownNav`);
-    newElement.innerHTML = html;
-    newElement.style.position = `relative`;
-    newElement.style.display = `inline-block`;
-    newElement.style.padding = `0`;
-    newElement.style.width = `132px`;
-    newElement.style.fontSize = `14px`;
+    // const newElement = document.createElement("li");
+    // newElement.classList.add(`store--picker`, `mainDropdownNav`);
+    // newElement.innerHTML = html;
+    // newElement.style.position = `relative`;
+    // newElement.style.display = `inline-block`;
+    // newElement.style.padding = `0`;
+    // newElement.style.width = `132px`;
+    // newElement.style.fontSize = `14px`;
 
     // topBar.insertAdjacentHTML(`beforebegin`, html);
     // console.log(newElement);
     // topBar.innerHTML += testHtml;
-    topBar.append(newElement);
+    // topBar.append(newElement);
+
+    document
+      .querySelector("#tabs > li.m15312.generalNav.last.mainDropdownNav")
+      .insertAdjacentHTML(
+        `afterend`,
+        `<li class="store--picker mainDropdownNav" style="position: relative; display: inline-block; padding: 0px; width: 132px; font-size: 14px">${html}</li>`
+      );
 
     const dropdownButton = document.querySelector(`.select--stores--button`);
 
@@ -131,6 +142,7 @@
       // console.log(event, event.target.dataset);
       const storeID = event.target.dataset.storeNumber;
       const storeLocation = event.target.dataset.storeLocation;
+      // const inStock = event.target.dataset.inStock;
       // console.log(storeID + storeLocation);
 
       // if (myStores.get(event.target.id.slice(-3)) === 0) {
@@ -152,23 +164,88 @@
         event.target.innerText = event.target.innerText + `✅`;
       }
       saveStores(`myStores2`, [...myStores2]);
+      // console.log(myStores2);
+    }
+  }
+
+  function renderOtherStockButton() {
+    const html = `<button class="check--stock--button">Check Stock</button>`;
+    document
+      .querySelector(
+        "#product-details-control > div.row.prodInfo.banner-md-margin-medium.banner-margin-small > div.col"
+      )
+      .insertAdjacentHTML(`afterend`, html);
+
+    document
+      .querySelector(`.check--stock--button`)
+      .addEventListener(`click`, handleCheckSavedStoresStock);
+
+    function handleCheckSavedStoresStock(event) {
+      console.log(`clicked`);
       console.log(myStores2);
     }
   }
 
   async function getNewAndOpenBoxData(storeID) {
     try {
+      // const stock = {};
+      const storeLocation = myStores2.get(storeID);
+
       const response = await fetch(`?storeID=${storeID}`);
       //   console.log(response.text());
       const html = await response.text();
       const parser = new DOMParser();
       const newDocument = parser.parseFromString(html, "text/html");
       // console.log(newDocument);
+      console.log(storeID);
+
+      // dataLayer[2]
+      // dataLayer[5][2][`items`][0]
+
+      // console.log(
+      //   newDocument
+      //     .querySelector("head > script:nth-child(59)")
+      //     .textContent.match(/dataLayer.push\((.*?)\)/s)[1]
+      // );
+      // console.log(
+      //   JSON.parse(
+      //     newDocument
+      //       .querySelector("head > script:nth-child(59)")
+      //       .textContent.match(/dataLayer.push\((.*?)\)/s)[1]
+      //       .replace(/[']/g, `"`)
+      //   )
+      // );
+
+      // stock.productInfo = JSON.parse(
+      //   newDocument
+      //     .querySelector("head > script:nth-child(59)")
+      //     .textContent.match(/dataLayer.push\((.*?)\)/s)[1]
+      //     .replace(/[']/g, `"`)
+      // );
+
+      const stock = JSON.parse(
+        newDocument
+          .querySelector("head > script:nth-child(59)")
+          .textContent.match(/dataLayer.push\((.*?)\)/s)[1]
+          .replace(/[']/g, `"`)
+      );
+
+      // .match(/dataLayer.push\((.*?)\)/s)
+
+      // head > script:nth-child(59)
+      // console.log(newDocument.dataLayer[2]);
+      // console.log(dataLayer[5][2][`items`][0]);
 
       // check inventory
       // if qoh = 1 then fetch new data
-      const newData = newDocument.querySelector(`.inventoryCnt`).textContent;
-      console.log(newData);
+      if (newDocument.querySelector(`.inventoryCnt`)) {
+        stock[`new`] = newDocument
+          .querySelector(`.inventoryCnt`)
+          ?.childNodes[0].textContent.trim();
+      }
+      // const newData =
+      //   newDocument.querySelector(`.inventoryCnt`)?.textContent || `SOLD OUT`;
+      // console.log(newData);
 
       let openBoxData = newDocument
         .querySelector("#content > script:nth-child(6)")
@@ -190,12 +267,17 @@
       // );
 
       if (!openBoxData) {
-        return;
+        // console.log(stock);
+        // myStoresStock.set(storeID, stock);
+        // console.log(myStoresStock);
+        // return stock;
       }
 
+      // console.log(openBoxData);
       openBoxData = openBoxData[1].replaceAll("\n", "").replace(/[']/g, `"`);
       openBoxData = JSON.parse(openBoxData);
-      console.log(openBoxData);
+      stock[`openBox`] = openBoxData;
+      // console.log(openBoxData);
 
       //   console.log(newDocument.querySelector(`.openboxOptions`));
       //   console.log(newDocument.querySelector(`#openboxmodal`));
@@ -214,14 +296,126 @@
       //       alert($(text).find(".separator-wrapped"));
       //     }
       //   );
+      // console.log(stock);
+      // myStoresStock.set(storeID, stock);
+      // console.log(myStoresStock);
+      // return stock;
+
+      //////////////////// OOS
+
+      // <div class="inventory">
+      //   <div class="icon-group">
+      //     <i class="fa-solid fa-circle-xmark text-burnt"></i>
+      //     <span>
+      //       <span
+      //         class="matrix-61 hide-text"
+      //         style="position:absolute; right:0;"
+      //       ></span>
+      //       SOLD OUT<span class="storeName"> at Mayfield Heights Store</span>
+      //     </span>
+      //   </div>
+      // </div>;
+
+      //////////////// IN STOCK
+
+      // <div class="inventory">
+      //   <div class="icon-group">
+      //     <i class="fa-solid fa-circle-check text-slate-blue"></i>
+      //     <span>
+      //       <span
+      //         class="matrix-57 hide-text"
+      //         style="position:absolute; right:0;"
+      //       ></span>
+      //       <span class="inventoryCnt">
+      //         25+ <span class="msgInStock">NEW IN STOCK</span>
+      //       </span>
+      //       <span class="storeName"> at St. Louis Park Store</span>
+      //     </span>
+      //   </div>
+
+      //   <div class="openboxOptions">
+      //     <button
+      //       type="button"
+      //       data-toggle="modal"
+      //       data-target="#openBoxModal"
+      //       class="openBoxModalButton"
+      //     >
+      //       <i class="fa-solid fa-circle-check text-slate-blue"></i> 6 Open Box:{" "}
+      //       <span id="opCostNew"> from $175.96</span>
+      //     </button>
+      //   </div>
+      // </div>;
+
+      console.log(stock);
+
+      let html2 = `<div class="inventory">
+         <div class="icon-group">`;
+      if (stock.new !== `0`) {
+        html2 =
+          html2 +
+          `<i class="fa-solid fa-circle-check text-slate-blue"></i>
+             <span>
+               <span
+                 class="matrix-57 hide-text"
+                 style="position:absolute; right:0;"
+               ></span>
+               <span class="inventoryCnt">
+                 ${stock.new} <span class="msgInStock">NEW IN STOCK</span>
+               </span>
+               <span class="storeName"> at ${storeLocation}(${storeID})</span>
+             </span>
+           </div>`;
+      } else {
+        html2 =
+          html2 +
+          `<i class="fa-solid fa-circle-xmark text-burnt"></i>
+             <span>
+               <span
+                 class="matrix-61 hide-text"
+                 style="position:absolute; right:0;"
+               ></span>
+               SOLD OUT<span class="storeName"> at ${storeLocation}(${storeID})</span>
+             </span>
+           </div>`;
+      }
+
+      if (stock.openBox) {
+        html2 =
+          html2 +
+          `<div class="openboxOptions">
+             <button
+               type="button"
+               data-toggle="modal"
+               data-target="#openBoxModal"
+               class="openBoxModalButton"
+             >
+               <i class="fa-solid fa-circle-check text-slate-blue"></i> ${stock.openBox.length} Open Box: 
+               <span id="opCostNew"> from $175.96 at ${storeLocation}(${storeID})</span>
+             </button>
+           </div>
+         </div>`;
+      } else {
+        html2 = html2 + `</div>`;
+      }
+
+      // console.log(html2);
+
+      // document
+      //   .querySelector("#pnlInventory > div")
+      //   .insertAdjacentHTML(`afterend`, html2);
+
+      // instead of fetching and rendering all on load, add button and fetch data and render after click
     } catch (error) {
       console.log(error);
     }
   }
 
-  displayStores();
-  // getNewAndOpenBoxData(115);
-  getNewAndOpenBoxData(145);
+  function renderAllStoreData() {}
+
+  // console.log(myStoresStock);
+  getNewAndOpenBoxData(`055`);
+  getNewAndOpenBoxData(`145`);
+  getNewAndOpenBoxData(`141`);
 })();
 
 // FASTER
