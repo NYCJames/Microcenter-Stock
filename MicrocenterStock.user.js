@@ -181,8 +181,12 @@
       .addEventListener(`click`, handleCheckSavedStoresStock);
 
     function handleCheckSavedStoresStock(event) {
-      console.log(`clicked`);
+      console.log(`clicked`, event);
       console.log(myStores2);
+
+      myStores2.forEach(function (value, key) {
+        getNewAndOpenBoxData(key);
+      });
     }
   }
 
@@ -452,10 +456,10 @@
   function renderAllStoreData() {}
 
   // console.log(myStoresStock);
-  getNewAndOpenBoxData(`055`);
-  getNewAndOpenBoxData(`145`);
-  getNewAndOpenBoxData(`125`);
-  getNewAndOpenBoxData(`075`);
+  // getNewAndOpenBoxData(`055`);
+  // getNewAndOpenBoxData(`145`);
+  // getNewAndOpenBoxData(`125`);
+  // getNewAndOpenBoxData(`075`);
 })();
 
 // FASTER
