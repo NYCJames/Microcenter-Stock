@@ -473,6 +473,7 @@ ${
       //   .insertAdjacentHTML(`afterend`, html3);
 
       // SCRAPE OPEN BOX DATA from document.querySelector("#openboxmodal > div") but exclude "row clearance-heading"
+      // document.querySelector("#openboxmodal > div").children
 
       // document
       //   .querySelector(`.banner-margin`)

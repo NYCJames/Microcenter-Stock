@@ -92,6 +92,13 @@
   }
 
   function renderOtherStockButton() {
+    document
+      .querySelector(`.banner-margin`)
+      .insertAdjacentHTML(
+        `afterend`,
+        `<div class="other--store--stock"><b>Other Locations: </b></div>`
+      );
+
     const html = `<button class="check--stock--button">Check Stock</button>`;
     document
       .querySelector(
@@ -107,6 +114,10 @@
       myStores2.forEach(function (_, key) {
         getNewAndOpenBoxData(key);
       });
+
+      document.querySelector(
+        `.other--store--stock`
+      ).innerHTML = `<b>Other Locations: </b>`;
     }
   }
 
@@ -142,9 +153,11 @@
         stock[`openBox`] = openBoxData;
       }
 
-      const html3 = `<div class="other--store--stock">
+      const storeInventoryElement = document.createElement(`div`);
+      storeInventoryElement.classList.add(`stock--${storeID}`, `tg-wrap`);
+      storeInventoryElement.innerHTML = `
       <b>${storeLocation} (${storeID})</b>
-<table class="stock--${storeID}"  border="1">
+<table border="1">
 <tbody>
 <tr>
 <td style="width: 400px;">$${stock.productPrice}</td>
@@ -168,13 +181,29 @@
           : `—`
       }</td>
 </tr>
+${
+  stock.openBox
+    ? `
+    ${stock.openBox
+      .map(function (value) {
+        return `<tr>
+      <td style="width: 2000px">${value.list + `, ` + value.name}</td>
+      <td style="width: 50px">${value.position}</td>
+      <td style="width: 200px">${value.id}</td>
+      <td style="width: 100px">$${value.price}</td>
+      </tr>`;
+      })
+      .join(``)}
+  `
+    : ``
+}
 </tbody>
 </table>
-      </div>`;
+      `;
 
       document
-        .querySelector(`.banner-margin`)
-        .insertAdjacentHTML(`afterend`, html3);
+        .querySelector(`.other--store--stock`)
+        .appendChild(storeInventoryElement);
     } catch (error) {
       console.log(error);
     }
