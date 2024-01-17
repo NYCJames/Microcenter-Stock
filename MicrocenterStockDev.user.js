@@ -169,6 +169,13 @@
   }
 
   function renderOtherStockButton() {
+    document
+      .querySelector(`.banner-margin`)
+      .insertAdjacentHTML(
+        `afterend`,
+        `<div class="other--store--stock"><b>Other Locations: </b></div>`
+      );
+
     const html = `<button class="check--stock--button">Check Stock</button>`;
     document
       .querySelector(
@@ -187,6 +194,10 @@
       myStores2.forEach(function (value, key) {
         getNewAndOpenBoxData(key);
       });
+
+      document.querySelector(
+        `.other--store--stock`
+      ).innerHTML = `<b>Other Locations: </b>`;
     }
   }
 
@@ -413,9 +424,9 @@
 
       // instead of fetching and rendering all on load, add button and fetch data and render after click
 
-      const html3 = `<div class="other--store--stock">
+      const html3 = `<div class="stock--${storeID} tg-wrap">
       <b>${storeLocation} (${storeID})</b>
-<table class="stock--${storeID}"  border="1">
+<table border="1">
 <tbody>
 <tr>
 <td style="width: 400px;">$${stock.productPrice}</td>
@@ -439,23 +450,92 @@
           : `—`
       }</td>
 </tr>
+${
+  stock.openBox
+    ? `
+    ${stock.openBox.map(function (value) {
+      return `<tr>
+      <td style="width: 400px>${value.list + value.name}</td>
+      <td style="width: 400px>${value.position}</td>
+      <td style="width: 400px>$${value.id}</td>
+      <td style="width: 400px>${value.price}</td>
+      </tr>`;
+    })}
+  `
+    : ``
+}
 </tbody>
 </table>
       </div>`;
 
-      document
-        .querySelector(`.banner-margin`)
-        .insertAdjacentHTML(`afterend`, html3);
+      // document
+      //   .querySelector(`.other--store--stock`)
+      //   .insertAdjacentHTML(`afterend`, html3);
+
+      // SCRAPE OPEN BOX DATA from document.querySelector("#openboxmodal > div") but exclude "row clearance-heading"
 
       // document
       //   .querySelector(`.banner-margin`)
       //   .insertAdjacentHTML(`afterend`, html2);
+
+      const storeInventoryElement = document.createElement(`div`);
+      storeInventoryElement.classList.add(`stock--${storeID}`, `tg-wrap`);
+      storeInventoryElement.innerHTML = `
+      <b>${storeLocation} (${storeID})</b>
+<table border="1">
+<tbody>
+<tr>
+<td style="width: 400px;">$${stock.productPrice}</td>
+<td style="width: 800px;">${
+        stock.new !== `0`
+          ? `<i class="fa-solid fa-circle-check text-slate-blue"></i>`
+          : `<i class="fa-solid fa-circle-xmark text-burnt"></i>`
+      } ${stock.new || 0} New In Stock</td>
+<td style="width: 500px;">${
+        stock.openBox
+          ? `<i class="fa-solid fa-circle-check text-slate-blue"></i>`
+          : `<i class="fa-solid fa-circle-xmark text-burnt"></i>`
+      } ${stock.openBox?.length || 0} Open Box</td>
+<td style="width: 800px;">${
+        stock.openBox
+          ? `from $${Number.parseFloat(
+              stock.openBox[0]?.price
+            )} to $${Number.parseFloat(
+              stock.openBox[stock.openBox?.length - 1]?.price
+            )}`
+          : `—`
+      }</td>
+</tr>
+${
+  stock.openBox
+    ? `
+    ${stock.openBox
+      .map(function (value) {
+        return `<tr>
+      <td style="width: 2000px">${value.list + `, ` + value.name}</td>
+      <td style="width: 50px">${value.position}</td>
+      <td style="width: 200px">${value.id}</td>
+      <td style="width: 100px">$${value.price}</td>
+      </tr>`;
+      })
+      .join(``)}
+  `
+    : ``
+}
+</tbody>
+</table>
+      `;
+      // console.log(storeInventoryElement);
+
+      document
+        .querySelector(`.other--store--stock`)
+        .appendChild(storeInventoryElement);
     } catch (error) {
       console.log(error);
     }
   }
 
-  function renderAllStoreData() {}
+  // function renderAllStoreData() {}
 
   // console.log(myStoresStock);
   // getNewAndOpenBoxData(`055`);
