@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Microcenter Stock Checker
 // @namespace    https://github.com/NYCJames
-// @version      1.0.0
+// @version      1.2.0
 // @description  Check new and open box stock at selected stores
 // @author       NYCJames
 // @match        https://www.microcenter.com/product/*
@@ -143,14 +143,33 @@
           .querySelector(`.inventoryCnt`)
           ?.childNodes[0].textContent.trim() || `0`;
 
-      let openBoxData = newDocument
-        .querySelector("#content > script:nth-child(6)")
-        .textContent.match(/OpenBoxLayer\=(.*?)\;/s);
+      const openBox2 = [
+        ...newDocument.querySelector("#openboxmodal > div")?.children,
+      ].slice(1);
+      if (!!openBox2) {
+        const openBoxData = [];
 
-      if (openBoxData) {
-        openBoxData = openBoxData[1].replace(/[']/g, `"`);
-        openBoxData = JSON.parse(openBoxData);
-        stock[`openBox`] = openBoxData;
+        openBox2.map(function (value) {
+          const openBoxItem = {};
+
+          openBoxItem.condition = value.children[0].innerText
+            .trim()
+            .split(`\n`)[0]
+            .trim();
+          openBoxItem.id = Number.parseFloat(
+            value.querySelector(`.descriptor`).innerText.slice(3)
+          );
+          openBoxItem.warranty = value.children[1].innerText.trim();
+          openBoxItem.salesTerms =
+            value.children[2].innerText.trim().split(`\n`)[0] +
+            `, ` +
+            value.children[2].innerText.trim().split(`\n`)[1].trim();
+          openBoxItem.price = value.querySelector(`.pricing`).dataset.price;
+
+          openBoxData.push(openBoxItem);
+        });
+
+        stock.openBox = openBoxData;
       }
 
       const storeInventoryElement = document.createElement(`div`);
@@ -181,24 +200,29 @@
           : `—`
       }</td>
 </tr>
+</tbody>
+</table>
 ${
   stock.openBox
     ? `
     ${stock.openBox
       .map(function (value) {
-        return `<tr>
-      <td style="width: 2000px">${value.list + `, ` + value.name}</td>
-      <td style="width: 50px">${value.position}</td>
-      <td style="width: 200px">${value.id}</td>
-      <td style="width: 100px">$${value.price}</td>
-      </tr>`;
+        return `<table border="1">
+        <tbody>
+        <tr>
+      <td style="width: 60px">${value.id}</td>
+      <td style="width: 500px">${value.condition}</td>
+      <td style="width: 650px">${value.salesTerms}</td>
+      <td style="width: 500px">${value.warranty}</td>
+      <td style="width: 60px">$${Math.trunc(value.price * 100) / 100}</td>
+      </tr>
+      </tbody>
+</table>`;
       })
       .join(``)}
   `
     : ``
 }
-</tbody>
-</table>
       `;
 
       document
