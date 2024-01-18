@@ -291,10 +291,53 @@
         // console.log(openBoxData);
         openBoxData = openBoxData[1].replace(/[']/g, `"`);
         openBoxData = JSON.parse(openBoxData);
-        stock[`openBox`] = openBoxData;
+        stock[`openBox2`] = openBoxData;
         // console.log(openBoxData);
 
         // .replaceAll("\n", "")
+      }
+
+      // console.log(newDocument.querySelector("#openboxmodal > div").children);
+      const openBox2 = [
+        ...newDocument.querySelector("#openboxmodal > div")?.children,
+      ].slice(1);
+      if (!!openBox2) {
+        const openBoxData = [];
+        // console.log(openBox2);
+
+        openBox2.map(function (value) {
+          const openBoxItem = {};
+
+          // console.log(value.children[0].innerText.trim().split(`\n`)[0].trim());
+          // console.log(
+          //   Number.parseFloat(
+          //     value.querySelector(`.descriptor`).innerText.slice(3)
+          //   )
+          // );
+          // console.log(value.children[1].innerText.trim());
+          // console.log(value.children[2].innerText.trim().split(`\n`)[0]);
+          // console.log(value.children[2].innerText.trim().split(`\n`)[1].trim());
+          // console.log(value.querySelector(`.pricing`).dataset.price);
+
+          openBoxItem.condition = value.children[0].innerText
+            .trim()
+            .split(`\n`)[0]
+            .trim();
+          openBoxItem.id = Number.parseFloat(
+            value.querySelector(`.descriptor`).innerText.slice(3)
+          );
+          openBoxItem.warranty = value.children[1].innerText.trim();
+          openBoxItem.salesTerms =
+            value.children[2].innerText.trim().split(`\n`)[0] +
+            `, ` +
+            value.children[2].innerText.trim().split(`\n`)[1].trim();
+          openBoxItem.price = value.querySelector(`.pricing`).dataset.price;
+
+          // console.log(openBoxItem);
+          openBoxData.push(openBoxItem);
+        });
+
+        stock.openBox = openBoxData;
       }
 
       //   console.log(newDocument.querySelector(`.openboxOptions`));
