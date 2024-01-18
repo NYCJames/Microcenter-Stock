@@ -550,24 +550,29 @@ ${
           : `—`
       }</td>
 </tr>
+</tbody>
+</table>
 ${
   stock.openBox
     ? `
     ${stock.openBox
       .map(function (value) {
-        return `<tr>
-      <td style="width: 2000px">${value.list + `, ` + value.name}</td>
-      <td style="width: 50px">${value.position}</td>
-      <td style="width: 200px">${value.id}</td>
-      <td style="width: 100px">$${value.price}</td>
-      </tr>`;
+        return `<table border="1">
+        <tbody>
+        <tr>
+      <td style="width: 60px">${value.id}</td>
+      <td style="width: 500px">${value.condition}</td>
+      <td style="width: 650px">${value.salesTerms}</td>
+      <td style="width: 500px">${value.warranty}</td>
+      <td style="width: 60px">$${Math.trunc(value.price * 100) / 100}</td>
+      </tr>
+      </tbody>
+</table>`;
       })
       .join(``)}
   `
     : ``
 }
-</tbody>
-</table>
       `;
       // console.log(storeInventoryElement);
 
